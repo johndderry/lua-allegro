@@ -283,7 +283,7 @@ static void handle_mouse_event (lua_State *L) {
 ** Reads the options and handles them all.
 */
 static int pmain (lua_State *L) {
-  int ret;
+  int ret, id;
   int argc = (int)lua_tointeger(L, 1);
   char **argv = (char **)lua_touserdata(L, 2);
   if (argv[0] && argv[0][0]) progname = argv[0];
@@ -307,7 +307,7 @@ static int pmain (lua_State *L) {
   allegro_init();
   install_keyboard();
   install_mouse();
-  //install_timer();
+  install_timer();
   set_color_depth(24);
   color = makecol(255,255,255);
   bgcolor = makecol(0,0,0);
@@ -320,21 +320,27 @@ static int pmain (lua_State *L) {
   
   while( run_flag ) {
 	  
-    lua_getglobal(L, "allegro");
-	lua_getfield(L, -1, "update");
-    //docall(L, 0, 0);
-	ret = lua_pcall(L, 0, 0, 0);
-	if( ret ) break;
-	lua_pop(L, 1);
-	
     if( key_event ) handle_key_event(L);
 	if( mouse_event ) handle_mouse_event(L);
 
     lua_getglobal(L, "allegro");
+	lua_getfield(L, -1, "update");
+    //docall(L, 0, 0);
+	ret = lua_pcall(L, 0, 0, 0);
+	if( ret ) {
+		id = 1;
+		break;
+	}
+	lua_pop(L, 1);
+	
+    lua_getglobal(L, "allegro");
 	lua_getfield(L, -1, "draw");
     //docall(L, 0, 0);
 	ret = lua_pcall(L, 0, 0, 0);
-	if( ret ) break;
+	if( ret ) {
+		id = 2;
+		break;
+	}
 	lua_pop(L, 1);
 	
 	show_mouse(display);
@@ -347,8 +353,11 @@ static int pmain (lua_State *L) {
   allegro_exit();
   
   if( ret ) {
-    fprintf(stderr, "error calling update/draw: %s\n", lua_tostring(L, -1) );
-    lua_pushboolean(L, 0);  /* signal error */
+    if( id == 1) 
+		fprintf(stderr, "error calling update: %s\n", lua_tostring(L, -1) );
+	else
+		fprintf(stderr, "error calling draw: %s\n", lua_tostring(L, -1) );	
+	lua_pushboolean(L, 0);  /* signal error */
   }
   else
     lua_pushboolean(L, 1);  /* signal no errors */

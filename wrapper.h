@@ -1,4 +1,4 @@
-#define TABLESIZE 16
+#define TABLESIZE 17
 
 extern int (*functable[])(lua_State *);
 extern const char *nametable[]; 

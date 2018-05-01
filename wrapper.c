@@ -155,18 +155,28 @@ static int al_rectangle(lua_State *L) {
 	const char *mode = lua_tostring(L, 1);
 	int xstart = lua_tointeger(L, 2);
 	int ystart = lua_tointeger(L, 3);
-	int xend = lua_tointeger(L, 4);
-	int yend = lua_tointeger(L, 5);
+	int xlen = lua_tointeger(L, 4);
+	int ylen = lua_tointeger(L, 5);
 	
 	if( strcmp( mode, "fill" ) == 0 ) 
-		rectfill( display, xstart, ystart, xend, yend, color );
+		rectfill( display, xstart, ystart, xstart+xlen, ystart+ylen, color );
 	else
-		rect( display, xstart, ystart, xend, yend, color );
+		rect( display, xstart, ystart, xstart+xlen, ystart+ylen, color );
 	
 	return 0;
 }
 
 static int al_circle(lua_State *L) {
+	const char *mode = lua_tostring(L, 1);
+	int x = lua_tointeger(L, 2);
+	int y = lua_tointeger(L, 3);
+	int r = lua_tointeger(L, 4);
+	
+	if( strcmp( mode, "fill" ) == 0 ) 
+		circlefill( display, x, y, r, color );
+	else
+		circle( display, x, y, r, color );
+		
 	return 0;
 }
 
@@ -179,6 +189,16 @@ static int al_print(lua_State *L) {
 	return 0;
 }
 
+static int al_line(lua_State *L) {
+	int xstart = lua_tointeger(L, 1);
+	int ystart = lua_tointeger(L, 2);
+	int xend = lua_tointeger(L, 3);
+	int yend = lua_tointeger(L, 4);
+	
+	line(display, xstart, ystart, xend, yend, color);
+	return 0;
+}
+
 static int al_quit(lua_State *L) {
 	run_flag = 0;
 	return 0;
@@ -188,12 +208,12 @@ int (*functable[])(lua_State *) = {
 	al_load, al_update, al_draw, al_keypressed, al_keyreleased,
 	al_mousepressed, al_mousereleased, al_mousemoved,
 	al_setMode, al_setTitle, al_setColor, al_setBackColor, 
-	al_rectangle, al_circle, al_print, al_quit
+	al_rectangle, al_circle, al_print, al_line, al_quit
 };
 
 const char *nametable[] = {
 	"load", "update", "draw", "keypressed", "keyreleased",
 	"mousepressed", "mousereleased", "mousemoved",
-	"setMode", "setTitle", "setColor", "setBackColor",
-	"rectangle", "circle", "print", "quit"
+	"setMode", "setTitle", "setColor", "setBackgroundColor",
+	"rectangle", "circle", "print", "line", "quit"
 };
