@@ -156,11 +156,11 @@ static int dofile (lua_State *L, const char *name) {
   return dochunk(L, luaL_loadfile(L, name));
 }
 
-#if 0
 static int dostring (lua_State *L, const char *s, const char *name) {
   return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
 }
 
+#if 0
 /*
 ** Calls 'require(name)' and stores the result in a global variable
 ** with the given name.
@@ -283,15 +283,21 @@ static void handle_mouse_event (lua_State *L) {
 ** Reads the options and handles them all.
 */
 static int pmain (lua_State *L) {
-  int ret, id;
+  int ret, n = 0;
+  char *eoption = NULL;
   int argc = (int)lua_tointeger(L, 1);
   char **argv = (char **)lua_touserdata(L, 2);
-  if (argv[0] && argv[0][0]) progname = argv[0];
-  if (argv[1] && argv[1][0]) scriptname = argv[1];
+  if (n < argc && argv[n] && argv[n][0]) progname = argv[n++];
+  if (n < argc && argv[n] && argv[n][0] == '-' && argv[n][1] == 'e') {  
+	if (++n < argc && argv[n] && argv[n][0]) eoption = argv[n++];
+  }
+  if (n < argc && argv[n] && argv[n][0]) scriptname = argv[n];
 
   luaL_openlibs(L);  /* open standard libraries */
   createargtable(L, argv, argc, 1);
   createAllegrotable(L);
+  if( eoption )
+	  dostring(L, eoption, "-e option");
   
   dofile(L, scriptname );
   
@@ -304,10 +310,6 @@ static int pmain (lua_State *L) {
     lua_pushboolean(L, 0);  /* signal error */
   }
 
-  allegro_init();
-  install_keyboard();
-  install_mouse();
-  install_timer();
   set_color_depth(24);
   color = makecol(255,255,255);
   bgcolor = makecol(0,0,0);
@@ -317,6 +319,7 @@ static int pmain (lua_State *L) {
 
   lastmouse_x = mouse_x;
   lastmouse_y = mouse_y;
+  int id;
   
   while( run_flag ) {
 	  
@@ -370,6 +373,13 @@ int main (int argc, char **argv) {
 
   keyboard_lowlevel_callback = keyboard_handler;
   mouse_callback = mouse_handler;
+  allegro_init();
+  install_keyboard();
+  install_mouse();
+  install_timer();
+  result = install_sound(DIGI_ALSA, MIDI_DIGMID, "");
+  if( result ) 
+	  fprintf(stderr, "install sound failure =%s\n", allegro_error );
   
   lua_State *L = luaL_newstate();  /* create state */
   if (L == NULL) {

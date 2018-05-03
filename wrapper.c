@@ -204,16 +204,27 @@ static int al_quit(lua_State *L) {
 	return 0;
 }
 
+static int al_playmidifile(lua_State *L) {
+	MIDI *mfile;
+	int ret;
+	mfile = load_midi("out.mid");
+	if( mfile ) {
+		ret = play_midi( mfile, 0 );
+		destroy_midi( mfile );
+	}
+	return 0;
+}
+
 int (*functable[])(lua_State *) = {
 	al_load, al_update, al_draw, al_keypressed, al_keyreleased,
 	al_mousepressed, al_mousereleased, al_mousemoved,
 	al_setMode, al_setTitle, al_setColor, al_setBackColor, 
-	al_rectangle, al_circle, al_print, al_line, al_quit
+	al_rectangle, al_circle, al_print, al_line, al_quit, al_playmidifile
 };
 
 const char *nametable[] = {
 	"load", "update", "draw", "keypressed", "keyreleased",
 	"mousepressed", "mousereleased", "mousemoved",
 	"setMode", "setTitle", "setColor", "setBackgroundColor",
-	"rectangle", "circle", "print", "line", "quit"
+	"rectangle", "circle", "print", "line", "quit", "playmidi",
 };

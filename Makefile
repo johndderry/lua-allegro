@@ -6,7 +6,7 @@ LDFLAGS = -g `pkg-config --libs allegro`
 INTERPRETER = lua-allegro
 
 $(INTERPRETER): interpreter.o wrapper.o
-	gcc -o $(INTERPRETER) interpreter.o wrapper.o -lm -Wl,-E -ldl -llua5.3 $(LDFLAGS)
+	gcc -o $(INTERPRETER) interpreter.o wrapper.o -lm -Wl,-E -ldl -llua5.3 -g -lalleg-debug
 	
 interpreter.o: interpreter.c
 	gcc -std=gnu99 -g -O0 -Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_LINUX -c -o interpreter.o interpreter.c -I../lua-5.3.4/src/
@@ -17,3 +17,5 @@ wrapper.o: wrapper.c
 clean:
 	(rm -f *.o $(LIBRARY))
 
+test: test.c
+	gcc -std=gnu99 -g -O0 -Wall -Wextra -o test test.c -lalleg-debug
