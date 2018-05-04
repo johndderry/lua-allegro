@@ -379,7 +379,7 @@ int main (int argc, char **argv) {
   install_timer();
   result = install_sound(DIGI_ALSA, MIDI_DIGMID, "");
   if( result ) 
-	  fprintf(stderr, "install sound failure =%s\n", allegro_error );
+	  fprintf(stderr, "install sound failure: %s\n", allegro_error );
   
   lua_State *L = luaL_newstate();  /* create state */
   if (L == NULL) {
